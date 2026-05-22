@@ -1,0 +1,13 @@
+{
+  "runtime": "node20.x",
+  "functions": {
+    "api/chat.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "api/submit-form.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  }
+}
