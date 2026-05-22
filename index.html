@@ -1,0 +1,657 @@
+<div id="seiChatbot" style="margin: 20px auto; z-index: 9999; width: 420px; max-width: 95vw; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <style>
+        .sei-chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sei-header {
+            background: linear-gradient(135deg, #8B6F47 0%, #D4AF7B 100%);
+            padding: 16px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sei-header h2 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+        .sei-header-sub { font-size: 11px; opacity: 0.85; margin-top: 4px; }
+        .sei-close-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; }
+
+        .sei-chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fafaf8;
+        }
+
+        .sei-message { animation: messageSlide 0.3s ease-out; display: flex; }
+        @keyframes messageSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sei-bot-msg {
+            background: white;
+            padding: 12px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            border: 0.5px solid #e0dbd0;
+            align-self: flex-start;
+        }
+
+        .sei-user-msg {
+            background: linear-gradient(135deg, #8B6F47 0%, #D4AF7B 100%);
+            color: white;
+            padding: 12px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 13px;
+            align-self: flex-end;
+        }
+
+        .sei-bubble-btn {
+            background: white;
+            border: 1.5px solid #D4AF7B;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8B6F47;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .sei-bubble-btn:hover { background: #f8f6f2; border-color: #8B6F47; transform: translateX(2px); }
+
+        .sei-form { display: none; flex-direction: column; gap: 12px; max-height: 100%; overflow-y: auto; padding: 16px; }
+        .sei-form.active { display: flex; }
+
+        .sei-form-group { display: flex; flex-direction: column; gap: 4px; }
+        .sei-form-label { font-size: 12px; font-weight: 600; color: #8B6F47; text-transform: uppercase; letter-spacing: 0.4px; }
+
+        .sei-form-input, .sei-form-select, .sei-form-textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .sei-form-input:focus, .sei-form-select:focus, .sei-form-textarea:focus {
+            outline: none;
+            border-color: #D4AF7B;
+            box-shadow: 0 0 0 2px rgba(212, 175, 123, 0.1);
+        }
+
+        .sei-form-textarea { resize: vertical; min-height: 80px; }
+
+        .sei-search-box { position: relative; margin-bottom: 8px; }
+        .sei-search-input { width: 100%; padding: 10px 12px 10px 28px; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; }
+        .sei-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+
+        .sei-suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sei-suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .sei-suggestion-item:hover { background: #f8f6f2; }
+
+        .sei-product-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .sei-product-option:hover { background: #f8f6f2; border-color: #D4AF7B; }
+        .sei-product-option input { margin-right: 8px; cursor: pointer; accent-color: #D4AF7B; }
+        .sei-product-option label { cursor: pointer; flex: 1; font-size: 12px; color: #333; }
+
+        .sei-submit-btn {
+            background: linear-gradient(135deg, #8B6F47 0%, #D4AF7B 100%);
+            color: white;
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .sei-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139, 111, 71, 0.3); }
+
+        .sei-back-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .sei-success-msg {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid #c8e6c9;
+            line-height: 1.6;
+        }
+
+        .sei-hidden { display: none; }
+
+        .sei-input-area {
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f0ebe5; }
+        ::-webkit-scrollbar-thumb { background: #D4AF7B; border-radius: 3px; }
+    </style>
+
+    <div class="sei-chatbot-container">
+        <div class="sei-header">
+            <div>
+                <h2>Saini Engineering Industries</h2>
+                <div class="sei-header-sub">Powered by Aura AI</div>
+            </div>
+            <button class="sei-close-btn" onclick="minimizeSEIChat()">−</button>
+        </div>
+
+        <div class="sei-chat-area" id="seiChatArea">
+            <div class="sei-message">
+                <div class="sei-bot-msg">Hello! 👋 Welcome to Saini Engineering Industries. How can I assist you today?</div>
+            </div>
+        </div>
+
+        <div class="sei-input-area" id="seiInputArea">
+            <input type="text" id="seiUserInput" class="sei-form-input" placeholder="Type your message..." style="width: 100%; padding: 10px;" onkeypress="if(event.key === 'Enter') handleSEIUserInput();">
+            <button onclick="handleSEIUserInput()" style="width: 100%; margin-top: 8px; padding: 10px; background: #8B6F47; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Send</button>
+        </div>
+
+        <div class="sei-form" id="seiForm"></div>
+    </div>
+</div>
+
+<script>
+    const SEI_PRODUCTS = [
+        'Wire and Cable Extrusion Line',
+        'Electric Cable Making Machine',
+        'House Wire Cable Line',
+        'Power Cable Plant',
+        'Submersible Cable Manufacturing Plant',
+        'Extruder Single Layer',
+        'Extruder Dual Layer',
+        'Caterpillar for Cable Production Line',
+        'Capstan for Cable Production Line',
+        'Pay Off Machine',
+        'Take Up Machine',
+        'Water Trough',
+        'Cross Heads',
+        'Rewinding Lines',
+        'Drives and Heating Panels',
+        'Screw and Barrel for Cable Production Line'
+    ];
+
+    let seiChatState = { conversationStarted: false, currentFlow: null, formData: {}, messageHistory: [] };
+    let seiSessionId = 'session_' + Date.now();
+    let seiTurnCount = 0;
+
+    function getMinimumDate() {
+        const today = new Date();
+        today.setDate(today.getDate() + 2);
+        return today.toISOString().split('T')[0];
+    }
+
+    function handleSEIUserInput() {
+        const input = document.getElementById('seiUserInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addSEIChatMessage(message, 'user');
+        input.value = '';
+        seiTurnCount++;
+
+        // FIXED: Updated fetch URL - will be replaced with Vercel URL after deployment
+        const backendUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000'
+            : window.location.origin;
+
+        fetch(backendUrl + '/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                sessionId: seiSessionId,
+                turnCount: seiTurnCount
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            addSEIChatMessage(data.reply, 'bot');
+            
+            if (seiTurnCount === 1) {
+                setTimeout(() => showSEIBubbleOptions(), 500);
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            addSEIChatMessage('Sorry, something went wrong. Please try again.', 'bot');
+        });
+    }
+
+    function addSEIChatMessage(text, sender) {
+        const chatArea = document.getElementById('seiChatArea');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'sei-message';
+        const msgContent = document.createElement('div');
+        msgContent.className = sender === 'user' ? 'sei-user-msg' : 'sei-bot-msg';
+        msgContent.textContent = text;
+        msgDiv.appendChild(msgContent);
+        chatArea.appendChild(msgDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        seiChatState.messageHistory.push({ sender, text });
+    }
+
+    function showSEIBubbleOptions() {
+        const chatArea = document.getElementById('seiChatArea');
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'sei-message';
+        bubbleDiv.innerHTML = `<div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+            <button class="sei-bubble-btn" onclick="initiateSEIFlow('factory')">🏭 Factory Visit & Technical Consultation</button>
+            <button class="sei-bubble-btn" onclick="initiateSEIFlow('appointment')">📅 Schedule Appointment</button>
+            <button class="sei-bubble-btn" onclick="initiateSEIFlow('quote')">💼 Get a Quotation</button>
+            <button class="sei-bubble-btn" onclick="initiateSEIFlow('products')">📦 View Our Products</button>
+        </div>`;
+        chatArea.appendChild(bubbleDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function initiateSEIFlow(flowType) {
+        seiChatState.currentFlow = flowType;
+        document.getElementById('seiInputArea').style.display = 'none';
+        const formContainer = document.getElementById('seiForm');
+        formContainer.innerHTML = '';
+        formContainer.classList.add('active');
+
+        if (flowType === 'factory') showSEIFactoryForm();
+        else if (flowType === 'appointment') showSEIAppointmentForm();
+        else if (flowType === 'quote') showSEIQuoteForm();
+        else if (flowType === 'products') showSEIProductsList();
+    }
+
+    function showSEIFactoryForm() {
+        const minDate = getMinimumDate();
+        document.getElementById('seiForm').innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; color: #8B6F47; margin: 0 0 12px 0;">Schedule Factory Visit</h3>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Full Name *</label>
+                <input type="text" class="sei-form-input" id="sei_name" placeholder="Your name" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Email Address *</label>
+                <input type="email" class="sei-form-input" id="sei_email" placeholder="your@email.com" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Phone Number *</label>
+                <input type="tel" class="sei-form-input" id="sei_phone" placeholder="+91 98101 75603" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Company Name</label>
+                <input type="text" class="sei-form-input" id="sei_company" placeholder="Your company">
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Valid GST Number *</label>
+                <input type="text" class="sei-form-input" id="sei_gst" placeholder="GST Number (e.g., 09ABCDE1234F1Z5)" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Preferred Visit Date *</label>
+                <input type="date" class="sei-form-input" id="sei_date" min="${minDate}" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Preferred Time Slot *</label>
+                <select class="sei-form-select" id="sei_time" required>
+                    <option value="">Select a time</option>
+                    <option value="09:00-10:00">9:00 AM - 10:00 AM</option>
+                    <option value="10:00-11:00">10:00 AM - 11:00 AM</option>
+                    <option value="11:00-12:00">11:00 AM - 12:00 PM</option>
+                    <option value="14:00-15:00">2:00 PM - 3:00 PM</option>
+                    <option value="15:00-16:00">3:00 PM - 4:00 PM</option>
+                    <option value="16:00-17:00">4:00 PM - 5:00 PM</option>
+                </select>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Consultation Focus *</label>
+                <select class="sei-form-select" id="sei_focus" required>
+                    <option value="">Select focus area</option>
+                    <option value="cable_extrusion">Cable Extrusion Machinery</option>
+                    <option value="wire_manufacturing">Wire Manufacturing Solutions</option>
+                    <option value="complete_plant">Complete Production Plant</option>
+                    <option value="general">General Consultation</option>
+                </select>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Additional Notes</label>
+                <textarea class="sei-form-textarea" id="sei_notes" placeholder="What would you like to discuss..."></textarea>
+            </div>
+            <button class="sei-submit-btn" onclick="submitSEIForm('factory')">Schedule Visit</button>
+            <button class="sei-back-btn" onclick="resetSEIForm()">Back to Menu</button>
+        `;
+    }
+
+    function showSEIAppointmentForm() {
+        const minDate = getMinimumDate();
+        document.getElementById('seiForm').innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; color: #8B6F47; margin: 0 0 12px 0;">Book an Appointment</h3>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Full Name *</label>
+                <input type="text" class="sei-form-input" id="sei_name" placeholder="Your name" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Email Address *</label>
+                <input type="email" class="sei-form-input" id="sei_email" placeholder="your@email.com" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Phone Number *</label>
+                <input type="tel" class="sei-form-input" id="sei_phone" placeholder="+91 98101 75603" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Company Name</label>
+                <input type="text" class="sei-form-input" id="sei_company" placeholder="Your company">
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Preferred Date *</label>
+                <input type="date" class="sei-form-input" id="sei_date" min="${minDate}" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Preferred Time *</label>
+                <select class="sei-form-select" id="sei_time" required>
+                    <option value="">Select a time</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                </select>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Appointment Type *</label>
+                <select class="sei-form-select" id="sei_type" required>
+                    <option value="">Select type</option>
+                    <option value="sales">Sales Consultation</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="maintenance">Maintenance Planning</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Meeting Location</label>
+                <select class="sei-form-select" id="sei_location">
+                    <option value="office">Our Office</option>
+                    <option value="yoursite">Your Site</option>
+                    <option value="virtual">Virtual Meeting</option>
+                </select>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Additional Notes</label>
+                <textarea class="sei-form-textarea" id="sei_notes" placeholder="Any specific topics or requirements..."></textarea>
+            </div>
+            <button class="sei-submit-btn" onclick="submitSEIForm('appointment')">Book Appointment</button>
+            <button class="sei-back-btn" onclick="resetSEIForm()">Back to Menu</button>
+        `;
+    }
+
+    function showSEIQuoteForm() {
+        const productOptions = SEI_PRODUCTS.map((p, i) => `
+            <div class="sei-product-option">
+                <input type="radio" id="sei_product_${i}" name="product" value="${p}" required>
+                <label for="sei_product_${i}">${p}</label>
+            </div>
+        `).join('');
+
+        document.getElementById('seiForm').innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; color: #8B6F47; margin: 0 0 12px 0;">Get a Quotation</h3>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Full Name *</label>
+                <input type="text" class="sei-form-input" id="sei_name" placeholder="Your name" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Email Address *</label>
+                <input type="email" class="sei-form-input" id="sei_email" placeholder="your@email.com" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Phone Number *</label>
+                <input type="tel" class="sei-form-input" id="sei_phone" placeholder="+91 98101 75603" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Company Name</label>
+                <input type="text" class="sei-form-input" id="sei_company" placeholder="Your company">
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Valid GST Number *</label>
+                <input type="text" class="sei-form-input" id="sei_gst" placeholder="GST Number (e.g., 09ABCDE1234F1Z5)" required>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Search Products</label>
+                <div class="sei-search-box">
+                    <span class="sei-search-icon">🔍</span>
+                    <input type="text" class="sei-search-input" id="sei_search" placeholder="Search products..." onkeyup="filterSEIProducts()">
+                    <div class="sei-suggestions" id="sei_suggestions"></div>
+                </div>
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Select Product *</label>
+                <div id="sei_productList" style="max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    ${productOptions}
+                    <div class="sei-product-option">
+                        <input type="radio" id="sei_product_other" name="product" value="other" required>
+                        <label for="sei_product_other">Other (Please specify)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="sei-form-group sei-hidden" id="sei_otherProductGroup">
+                <label class="sei-form-label">Product Details *</label>
+                <input type="text" class="sei-form-input" id="sei_otherProduct" placeholder="Describe the product...">
+            </div>
+            <div class="sei-form-group">
+                <label class="sei-form-label">Additional Details</label>
+                <textarea class="sei-form-textarea" id="sei_details" placeholder="Specifications, requirements, or special requests..."></textarea>
+            </div>
+            <button class="sei-submit-btn" onclick="submitSEIForm('quote')">Request Quote</button>
+            <button class="sei-back-btn" onclick="resetSEIForm()">Back to Menu</button>
+        `;
+
+        document.querySelectorAll('input[name="product"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const otherGroup = document.getElementById('sei_otherProductGroup');
+                if (this.value === 'other') {
+                    otherGroup.classList.remove('sei-hidden');
+                    document.getElementById('sei_otherProduct').required = true;
+                } else {
+                    otherGroup.classList.add('sei-hidden');
+                    document.getElementById('sei_otherProduct').required = false;
+                }
+            });
+        });
+
+        document.getElementById('sei_search').addEventListener('input', function() {
+            showSEISuggestions(this.value);
+        });
+    }
+
+    function filterSEIProducts() {
+        const searchTerm = document.getElementById('sei_search').value.toLowerCase();
+        const productOptions = document.querySelectorAll('#sei_productList .sei-product-option');
+        productOptions.forEach(option => {
+            const label = option.querySelector('label').textContent.toLowerCase();
+            option.style.display = label.includes(searchTerm) || searchTerm === '' ? 'flex' : 'none';
+        });
+    }
+
+    function showSEISuggestions(searchTerm) {
+        const suggestionsDiv = document.getElementById('sei_suggestions');
+        if (!searchTerm.trim()) {
+            suggestionsDiv.innerHTML = '';
+            return;
+        }
+
+        const matches = SEI_PRODUCTS.filter(p => p.toLowerCase().includes(searchTerm.toLowerCase()));
+        if (matches.length === 0) {
+            suggestionsDiv.innerHTML = '<div class="sei-suggestion-item" style="color: #999;">No products match</div>';
+            return;
+        }
+
+        suggestionsDiv.innerHTML = matches.slice(0, 5).map(product => 
+            `<div class="sei-suggestion-item" onclick="selectSEIProductSuggestion('${product}')">${product}</div>`
+        ).join('');
+    }
+
+    function selectSEIProductSuggestion(product) {
+        document.getElementById('sei_search').value = product;
+        document.getElementById('sei_suggestions').innerHTML = '';
+        filterSEIProducts();
+    }
+
+    function showSEIProductsList() {
+        const productsList = SEI_PRODUCTS.map(p => 
+            `<div style="padding: 10px; background: #f8f6f2; border-radius: 8px; font-size: 12px; color: #333; border-left: 3px solid #D4AF7B;">✓ ${p}</div>`
+        ).join('');
+
+        document.getElementById('seiForm').innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; color: #8B6F47; margin: 0 0 12px 0;">Our Products</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+                ${productsList}
+            </div>
+            <div style="margin-top: 12px; padding: 10px; background: #f0ebe5; border-radius: 8px; font-size: 11px; color: #666; text-align: center;">
+                Want a detailed quotation? Let's get your specific requirements.
+            </div>
+            <button class="sei-submit-btn" onclick="initiateSEIFlow('quote')" style="margin-top: 12px;">Request a Quote</button>
+            <button class="sei-back-btn" onclick="resetSEIForm()">Back to Menu</button>
+        `;
+    }
+
+    function submitSEIForm(formType) {
+        const name = document.getElementById('sei_name')?.value?.trim();
+        const email = document.getElementById('sei_email')?.value?.trim();
+        const phone = document.getElementById('sei_phone')?.value?.trim();
+        const gst = document.getElementById('sei_gst')?.value?.trim();
+
+        if ((formType === 'factory' || formType === 'quote') && !gst) {
+            alert('Please provide a valid GST number');
+            return;
+        }
+
+        if (!name || !email || !phone) {
+            alert('Please fill in all required fields (Name, Email, Phone)');
+            return;
+        }
+
+        const formData = {
+            type: formType,
+            name: name,
+            email: email,
+            phone: phone,
+            gst: gst || 'N/A',
+            company: document.getElementById('sei_company')?.value?.trim() || 'N/A',
+            date: document.getElementById('sei_date')?.value || '',
+            time: document.getElementById('sei_time')?.value || '',
+            focus: document.getElementById('sei_focus')?.value || document.getElementById('sei_type')?.value || '',
+            product: document.querySelector('input[name="product"]:checked')?.value || '',
+            notes: document.getElementById('sei_notes')?.value?.trim() || document.getElementById('sei_details')?.value?.trim() || '',
+            timestamp: new Date().toLocaleString()
+        };
+
+        // Send form to backend
+        const backendUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000'
+            : window.location.origin;
+
+        fetch(backendUrl + '/submit-form', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                formType: formType,
+                data: formData,
+                sessionId: seiSessionId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('seiForm').classList.remove('active');
+                document.getElementById('seiInputArea').style.display = 'block';
+                addSEIChatMessage(data.message, 'bot');
+                seiChatState.currentFlow = null;
+                document.getElementById('seiUserInput').value = '';
+                document.getElementById('seiUserInput').focus();
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error submitting form. Please try again.');
+        });
+    }
+
+    function resetSEIForm() {
+        seiChatState.currentFlow = null;
+        seiChatState.conversationStarted = false;
+        document.getElementById('seiInputArea').style.display = 'block';
+        document.getElementById('seiForm').classList.remove('active');
+        document.getElementById('seiForm').innerHTML = '';
+        document.getElementById('seiUserInput').value = '';
+    }
+
+    function minimizeSEIChat() {
+        document.querySelector('.sei-chatbot-container').style.display = 
+            document.querySelector('.sei-chatbot-container').style.display === 'none' ? 'flex' : 'none';
+    }
+</script>
